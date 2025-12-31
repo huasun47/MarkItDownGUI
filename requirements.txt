@@ -1,0 +1,25 @@
+# Core dependencies from pyproject.toml
+beautifulsoup4
+requests
+markdownify
+magika~=0.6.1
+charset-normalizer
+defusedxml
+onnxruntime<=1.20.1; sys_platform == 'win32'
+
+# Optional dependencies (for full format support)
+python-pptx
+mammoth~=1.11.0
+pandas
+openpyxl
+xlrd
+lxml
+pdfminer.six>=20251107
+olefile
+pydub
+imageio-ffmpeg
+SpeechRecognition
+youtube-transcript-api~=1.0.0
+
+# GUI Application dependencies
+PyQt5
