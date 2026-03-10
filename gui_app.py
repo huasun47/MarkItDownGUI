@@ -1,6 +1,30 @@
 import sys
 import os
 import json
+
+# PyInstaller 路径修复 - 必须在其他导入之前执行
+if getattr(sys, 'frozen', False):
+    # 打包后的环境
+    meipass = sys._MEIPASS
+    
+    # 修复 magika 路径
+    def fix_magika_paths():
+        try:
+            import magika
+            magika_packaged_path = os.path.join(meipass, 'magika')
+            if os.path.exists(magika_packaged_path):
+                # 将打包的 magika 路径添加到 Python 路径
+                sys.path.insert(0, magika_packaged_path)
+                
+                # 修补 magika 的路径查找
+                if hasattr(magika, '__file__'):
+                    original_file = magika.__file__
+                    magika.__file__ = os.path.join(magika_packaged_path, '__init__.py')
+        except ImportError:
+            pass
+    
+    fix_magika_paths()
+
 try:
     from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                  QHBoxLayout, QPushButton, QListWidget, QFileDialog, 
@@ -36,9 +60,18 @@ except ImportError:
 
 # Try to import MarkItDown
 try:
-    # Assuming we are in the root of the repo and markitdown package is available
-    # Use src/markitdown to ensure we load the local modified version
-    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "markitdown", "src"))
+    if getattr(sys, 'frozen', False):
+        # 打包后的环境 - 从 sys._MEIPASS 中查找
+        markitdown_path = os.path.join(sys._MEIPASS, "markitdown", "src")
+        if os.path.exists(markitdown_path):
+            sys.path.insert(0, markitdown_path)
+        else:
+            # 备选路径
+            sys.path.insert(0, os.path.join(sys._MEIPASS, "markitdown"))
+    else:
+        # 开发环境
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "markitdown", "src"))
+    
     from markitdown import MarkItDown
 except ImportError:
     MarkItDown = None
@@ -181,8 +214,14 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("MarkItDown GUI - 全能Markdown转换工具")
         self.resize(900, 700)
         
-        # 设置应用图标
-        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "exec.png")
+        # 设置应用图标 - 兼容开发环境和打包后的应用
+        if getattr(sys, 'frozen', False):
+            # 打包后的应用
+            icon_path = os.path.join(sys._MEIPASS, "assets", "exec_logo.png")
+        else:
+            # 开发环境
+            icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "exec_logo.png")
+        
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
         

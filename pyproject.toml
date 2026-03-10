@@ -42,3 +42,7 @@ dev = []
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["markitdown*"]
+
+# [scripts]
+# start = "python gui_app.py"
+# build-windows = "python scripts/build-windows.py"
