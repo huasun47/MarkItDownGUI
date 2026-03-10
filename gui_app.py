@@ -1,12 +1,25 @@
 import sys
 import os
 import json
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
-                             QHBoxLayout, QPushButton, QListWidget, QFileDialog, 
-                             QLabel, QMessageBox, QGroupBox, QTextEdit, 
-                             QRadioButton, QButtonGroup, QAbstractItemView, QInputDialog, QLineEdit)
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtGui import QDragEnterEvent, QDropEvent
+try:
+    from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+                                 QHBoxLayout, QPushButton, QListWidget, QFileDialog, 
+                                 QLabel, QMessageBox, QGroupBox, QTextEdit, 
+                                 QRadioButton, QButtonGroup, QAbstractItemView, QInputDialog, QLineEdit)
+    from PyQt6.QtCore import QThread, pyqtSignal
+    from PyQt6.QtGui import QDragEnterEvent, QDropEvent, QIcon
+    from PyQt6.QtWidgets import QAbstractItemView as QAbstractItemViewEnum
+    PYQT_VERSION = 6
+except ImportError:
+    # Fallback to PyQt5 if PyQt6 is not available
+    from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+                                 QHBoxLayout, QPushButton, QListWidget, QFileDialog, 
+                                 QLabel, QMessageBox, QGroupBox, QTextEdit, 
+                                 QRadioButton, QButtonGroup, QAbstractItemView, QInputDialog, QLineEdit)
+    from PyQt5.QtCore import QThread, pyqtSignal
+    from PyQt5.QtGui import QDragEnterEvent, QDropEvent, QIcon
+    from PyQt5.QtWidgets import QAbstractItemView as QAbstractItemViewEnum
+    PYQT_VERSION = 5
 
 # Try to set up ffmpeg from imageio-ffmpeg if available (fixes pydub RuntimeWarning)
 try:
@@ -129,7 +142,10 @@ class FileListWidget(QListWidget):
     def __init__(self):
         super().__init__()
         self.setAcceptDrops(True)
-        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        if PYQT_VERSION == 6:
+            self.setSelectionMode(QAbstractItemViewEnum.SelectionMode.ExtendedSelection)
+        else:
+            self.setSelectionMode(QAbstractItemViewEnum.ExtendedSelection)
 
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasUrls():
@@ -164,6 +180,11 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("MarkItDown GUI - 全能Markdown转换工具")
         self.resize(900, 700)
+        
+        # 设置应用图标
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "exec.png")
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
         
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
@@ -339,4 +360,7 @@ if __name__ == "__main__":
     
     window = MainWindow()
     window.show()
-    sys.exit(app.exec_())
+    if PYQT_VERSION == 6:
+        sys.exit(app.exec())
+    else:
+        sys.exit(app.exec_())

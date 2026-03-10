@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "markitdown-gui"
+version = "1.0.0"
+description = "一个功能强大的本地 MarkItDown 图形界面工具，一键将各种文件转换为 Markdown"
+readme = "README.md"
+requires-python = ">=3.10,<3.11"
+dependencies = [
+    "beautifulsoup4",
+    "requests",
+    "markdownify",
+    "magika~=0.6.1",
+    "charset-normalizer",
+    "defusedxml",
+    "python-pptx",
+    "python-docx",
+    "mammoth~=1.11.0",
+    "pandas",
+    "openpyxl",
+    "xlrd",
+    "lxml",
+    "pdfminer.six>=20251107",
+    "olefile",
+    "pydub",
+    "imageio-ffmpeg",
+    "SpeechRecognition",
+    "youtube-transcript-api~=1.0.0",
+    "PyQt6",
+]
+
+[project.optional-dependencies]
+windows = [
+    "onnxruntime<=1.20.1; sys_platform == 'win32'",
+]
+
+[dependency-groups]
+dev = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["markitdown*"]
